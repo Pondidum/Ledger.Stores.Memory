@@ -5,12 +5,12 @@ namespace Ledger.Stores.Memory
 {
 	public class InMemoryEventStore<TKey> : IEventStore<TKey>
 	{
-		private readonly Dictionary<object, List<DomainEvent>> _events;
+		private readonly Dictionary<object, List<IDomainEvent>> _events;
 		private readonly Dictionary<object, List<ISequenced>> _snapshots;
 
 		public InMemoryEventStore()
 		{
-			_events = new Dictionary<object, List<DomainEvent>>();
+			_events = new Dictionary<object, List<IDomainEvent>>();
 			_snapshots = new Dictionary<object, List<ISequenced>>();
 		}
 
@@ -32,26 +32,26 @@ namespace Ledger.Stores.Memory
 				: (int?) null;
 		}
 
-		public void SaveEvents(TKey aggregateID, IEnumerable<DomainEvent> changes)
+		public void SaveEvents(TKey aggregateID, IEnumerable<IDomainEvent> changes)
 		{
 			if (_events.ContainsKey(aggregateID) == false)
 			{
-				_events[aggregateID] = new List<DomainEvent>();
+				_events[aggregateID] = new List<IDomainEvent>();
 			}
 
 			_events[aggregateID].AddRange(changes);
 		}
 
-		public IEnumerable<DomainEvent> LoadEvents(TKey aggregateID)
+		public IEnumerable<IDomainEvent> LoadEvents(TKey aggregateID)
 		{
-			List<DomainEvent> events;
+			List<IDomainEvent> events;
 
 			return _events.TryGetValue(aggregateID, out events)
 				? events
-				: Enumerable.Empty<DomainEvent>();
+				: Enumerable.Empty<IDomainEvent>();
 		}
 
-		public IEnumerable<DomainEvent> LoadEventsSince(TKey aggregateID, int sequenceID)
+		public IEnumerable<IDomainEvent> LoadEventsSince(TKey aggregateID, int sequenceID)
 		{
 			return LoadEvents(aggregateID)
 				.Where(e => e.Sequence > sequenceID);
